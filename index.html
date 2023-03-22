@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>文字の重複部分から2字を答えよ</title>
+<style type="text/css">
+<!--
+.qbox { height:300px; width:300px; border:solid }
+.iLine{ display: inline-block; vertical-align:top; }
+input[type="text"]{ font-size: 150%; }
+button{ font-size: 150%; }
+#EditMode { display: none; }
+-->
+</style>
+<script>
+/*
+ReadMe:
+・サイズを変更したい場合：
+　このソースの「300」と書かれている部分を数値置換してください。
+　（１つにまとめたかったができませんでした・・・）
+
+・フォントを変更したい場合：
+var font　の内容を変更してください。
+フォントサイズを変更した場合は、
+var fontSize　の内容も変更してください。
+
+・回答時の色を変えたい場合：
+var w01Style 
+var w02Style 
+このRGB値を変更してください。ただし、両方同じ値にするとおそらく正常に動作しないです。
+
+[その他]
+・デフォルトの１問目は、Youtube動画を見ていたら回答できるはずです。
+・URLに問題を入れたときの難読化？しないとそれを見て回答できちゃうからです。
+（でもデバッグモードにすると）あっさり確認できますが。。。
+
+
+GitHubURL:https://github.com/motoyori/QK_OverlapWord
+システム参考URL:QuizKnock Youtube動画
+https://www.youtube.com/watch?v=IXyQwMtE8rA
+
+
+[ToDo]
+・フォントの変更（URLに反映）
+・複数回誤答の場合に、ギブアップ機能
+・問題生成後にそのまま回答部分の非表示化
+・問題サイズの変更
+*/
+
+
+var csize = 300;
+var fontSize = 100;
+var font = '100pt 明朝体';//Arial
+
+var w01Style = '0, 0, 255';
+var w02Style = '255, 0, 0';
+
+function setSetting(){
+  //内容をクリア
+  ['Answer','w01','w02','question'].forEach( key => {
+    var canvas = document.getElementById(key);
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  });
+  //表示設定(あとで変更可能にする)
+  csize = 300;
+  fontSize = 220;
+  font = "220pt '游明朝 Demibold'";
+}
+function printWoed12(cl, wd, wStyle){
+  var canvas = document.getElementById(cl);
+  var ctx = canvas.getContext('2d');
+  ctx.width = csize;
+  ctx.height = csize;
+  ctx.font = font;
+
+  var textWidth = ctx.measureText(wd).width;
+
+  ctx.fillStyle = 'rgba(' + wStyle + ')';
+  ctx.fillText(wd, (csize - textWidth)/2, (csize - fontSize)/2 + fontSize);
+}
+function printWoedA(cl, wd1, wd2){
+  var canvas = document.getElementById(cl);
+  var ctx = canvas.getContext('2d');
+  ctx.width = csize;
+  ctx.height = csize;
+  ctx.font = font;
+
+  var textWidth = ctx.measureText(wd1).width;
+
+  ctx.fillStyle = 'rgba(' + w01Style + ', 0.5)';
+  ctx.fillText(wd1, (csize - textWidth) / 2, (csize - fontSize)/2 + fontSize);
+
+  var textWidth2 = ctx.measureText(wd2).width;
+
+  ctx.fillStyle = 'rgba(' + w02Style + ', 0.5)';
+  ctx.fillText(wd2, (csize - textWidth2) / 2, (csize - fontSize)/2 + fontSize);
+}
+
+function printWoedQ(cl, wd1, wd2){
+  //一旦回答を書く
+  printWoedA(cl, wd1, wd2);
+  //回答した中で片方の色を消すことで、重複のみ残る(重複したところは色が合成されているはず)
+  var canvas = document.getElementById(cl);
+  var ctx = canvas.getContext('2d');
+
+  var w = ctx.canvas.clientWidth;
+  var h = ctx.canvas.clientHeight;
+  for (var i=0; i<=w; i++){
+    for (var j=0; j<=h; j++){
+      var imageData = ctx.getImageData(i, j, 1, 1);
+      var r = imageData.data[0];        
+      var g = imageData.data[1];
+      var b = imageData.data[2];
+      var a = imageData.data[3];
+
+      if (r == 0 && g == 0 && b == 0)
+        continue;
+
+      if ((r == 255 && b == 0) || (r == 0 && b == 255)){
+        imageData.data[0] = 255;
+        imageData.data[1] = 255;
+        imageData.data[2] = 255;
+        //imageData.data[3] = 0.5;
+        ctx.putImageData(imageData, i, j);
+      }else{
+        imageData.data[0] = 0;
+        imageData.data[1] = 0;
+        imageData.data[2] = 0;
+        //imageData.data[3] = 0.5;
+        ctx.putImageData(imageData, i, j);
+      }
+    }
+  }
+}
+
+window.onload = function() {
+  var w = '問題'
+  //URL引数にq=UTF-8文字コードのHTMLエンコード２文字があればそれを問題とする。
+  var s = location.search.replace('?', '');
+  if (s != ''){
+    var sp = s.split('&');
+    sp.forEach( key =>{
+      var spk = key.split('=');
+      if (spk.length >= 2){
+        if (spk[0] == 'q'){
+          var val = decodeURI(spk[1]);
+
+          if (val.length >= 5){
+            var valsp = val.split('_');
+            if(valsp.length >= 2){
+              w = String.fromCharCode(valsp[0], valsp[1]);
+            }
+          }
+          //var dUtf8str = encodeURIComponent(spk[1]);
+          //var utf16str = decodeURIComponent(escape(utf8str));
+          //if (utf16str.length >= 2)
+          //  w = utf16str;
+        }
+      }
+    });
+  }
+  document.getElementById("qword").value = w;
+  createQ_Click();
+}
+
+function createQ_Click(){
+  var val = document.getElementById("qword").value;
+  if (val.length >= 2){
+    var w = val;
+    var w1 = w[0];
+    var w2 = w[1];
+
+    setSetting();
+    printWoedA('Answer', w1, w2);
+    printWoed12('w01', w1, w01Style);
+    printWoed12('w02', w2, w02Style);
+    printWoedQ('question', w1, w2);
+    //document.getElementById("EditMode").style.display ="none";
+  }else{
+    alert('文字数が足りません');
+    document.getElementById("EditMode").style.display ="block";
+  }
+}
+function createQ2_Click(){
+  createQ_Click();
+  document.getElementById("AnsW").value = "";
+  document.getElementById("EditMode").style.display ="none";
+}
+
+function chkAns_Click(){
+  var val = document.getElementById("qword").value;
+  var valAns = document.getElementById("AnsW").value;
+  if ((val[0] == valAns[0] && val[1] == valAns[1]) || (val[1] == valAns[0] && val[0] == valAns[1])){
+    alert('正解！「' + val + '」');
+    document.getElementById("EditMode").style.display ="block";
+  }else{
+    alert('不正解！');
+    document.getElementById("EditMode").style.display ="none";
+  }
+}
+
+function createURL_Click(){
+  var val = document.getElementById("qword").value;
+  var uri = encodeURI(val.codePointAt(0)+"_"+val.codePointAt(1));
+  var url = location.protocol + '://' + location.host + location.pathname + '?q=' + uri;
+  //var utf8str = unescape(encodeURIComponent(val));
+  //var eUtf8str = encodeURI(utf8str); 
+  //var url = location.protocol + '://' + location.host + location.pathname + '?q=' + eUtf8str;
+  document.getElementById("urls").value = url;
+}
+</script>
+</head>
+<body>
+
+<canvas id="question" class="qbox" width="300" height="300"></canvas>
+<div class="qbox iLine">
+問題：2字熟語の共通部分から、この二字熟語を答えて下さい。<br/>
+  <input type="text" id="AnsW" style="width:3em;" />
+  <button id="chkAns" onclick="chkAns_Click()">回答</button><br/>
+システム参考：QuizKnock Youtube 「
+<a href="https://www.youtube.com/watch?v=IXyQwMtE8rA" target="_blank">【物理的に】熟語を重ねてみた【なぜか読める】</a>
+」より
+</div>
+<div id="EditMode">
+  <canvas id="w01" class="qbox" width="300" height="300"></canvas>
+  <canvas id="w02" class="qbox" width="300" height="300"></canvas>
+  <canvas id="Answer" class="qbox" width="300" height="300"></canvas>
+  <div class="qbox iLine">
+【エディットモード・回答】<br/><br/>
+・重ねる熟語(2文字)<br/>
+    <input type="text" id="qword" length="2" style="width:3em;"/>
+    <button id="createQ" onclick="createQ_Click()">反映</button>　
+    <button id="createQ2" onclick="createQ2_Click()">問題化</button><br/>
+    ※反映：左の画面に内容を表示します。<br/>
+    ※問題化：出題するモードにします。<br/>
+    <input type="text" id="urls" />
+    <button onclick="createURL_Click()">URL生成</button><br/>
+    ※URL生成：他の人に問題として表示するURLを生成します。
+    </div>
+  </div>
+</body>
+</html>
