@@ -208,6 +208,7 @@ function createURL_Click(){
   //var eUtf8str = encodeURI(utf8str); 
   //var url = location.protocol + '//' + location.host + location.pathname + '?q=' + eUtf8str;
   document.getElementById("urls").value = url;
+  document.getElementById("urls").select();
 }
 </script>
 </head>
@@ -234,7 +235,7 @@ function createURL_Click(){
     <button id="createQ2" onclick="createQ2_Click()">問題化</button><br/>
     ※反映：左の画面に内容を表示します。<br/>
     ※問題化：出題するモードにします。<br/>
-    <input type="text" id="urls" />
+    <input type="text" id="urls" style="width:6em;"/>
     <button onclick="createURL_Click()">URL生成</button><br/>
     ※URL生成：他の人に問題として表示するURLを生成します。
     </div>
