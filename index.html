@@ -203,10 +203,10 @@ function chkAns_Click(){
 function createURL_Click(){
   var val = document.getElementById("qword").value;
   var uri = encodeURI(val.codePointAt(0)+"_"+val.codePointAt(1));
-  var url = location.protocol + '://' + location.host + location.pathname + '?q=' + uri;
+  var url = location.protocol + '//' + location.host + location.pathname + '?q=' + uri;
   //var utf8str = unescape(encodeURIComponent(val));
   //var eUtf8str = encodeURI(utf8str); 
-  //var url = location.protocol + '://' + location.host + location.pathname + '?q=' + eUtf8str;
+  //var url = location.protocol + '//' + location.host + location.pathname + '?q=' + eUtf8str;
   document.getElementById("urls").value = url;
 }
 </script>
