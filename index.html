@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>文字の重複部分から2字を答えよ</title>
+  <title>【クイズ】#物理的な二重部分だけが見える二字熟語</title>
 <style type="text/css">
 <!--
 .qbox { height:300px; width:300px; border:solid }
@@ -10,6 +10,24 @@
 input[type="text"]{ font-size: 150%; }
 button{ font-size: 150%; }
 #EditMode { display: none; }
+
+/* ツールチップ */
+.tooltip { position: relative; cursor: pointer; }
+.tooltip::before, .tooltip::after {
+  position: absolute; opacity: 0; transition: all 0.3s;
+}
+.tooltip::before {
+  content: ""; border: 10px solid transparent;
+  border-bottom-color: #000; top: 10px; left: 10px;
+}
+.tooltip::after {
+  content: attr(data-tooltip); display: block;
+  padding: 7px 13px; background: #000;
+  border-radius: 3px; font-size: 12px;
+  font-weight: 600; color: #fff; top: 30px; left: 0;
+}
+.tooltip:hover::before{ top: 16px; opacity: 1; }
+.tooltip:hover::after{ top: 36px; opacity: 1; }
 -->
 </style>
 <script>
@@ -50,7 +68,7 @@ https://www.youtube.com/watch?v=IXyQwMtE8rA
 
 var csize = 300;
 var fontSize = 100;
-var font = '100pt 明朝体';//Arial
+var font = "220pt '游明朝 Demibold'";//Arial
 
 var w01Style = '0, 0, 255';
 var w02Style = '255, 0, 0';
@@ -114,20 +132,17 @@ function printWoedQ(cl, wd1, wd2){
       var b = imageData.data[2];
       var a = imageData.data[3];
 
-      if (r == 0 && g == 0 && b == 0)
-        continue;
-
-      if ((r == 255 && b == 0) || (r == 0 && b == 255)){
+      if ((r == 0 && g == 0 && b == 0) || (r == 255 && b == 0) || (r == 0 && b == 255)){
         imageData.data[0] = 255;
         imageData.data[1] = 255;
         imageData.data[2] = 255;
-        //imageData.data[3] = 0.5;
+        imageData.data[3] = 255;
         ctx.putImageData(imageData, i, j);
       }else{
         imageData.data[0] = 0;
         imageData.data[1] = 0;
         imageData.data[2] = 0;
-        //imageData.data[3] = 0.5;
+        imageData.data[3] = 200;
         ctx.putImageData(imageData, i, j);
       }
     }
@@ -162,6 +177,8 @@ window.onload = function() {
   }
   document.getElementById("qword").value = w;
   createQ_Click();
+  
+  document.getElementById("question").style.cursor = 'pointer';
 }
 
 function createQ_Click(){
@@ -209,19 +226,47 @@ function createURL_Click(){
   //var url = location.protocol + '//' + location.host + location.pathname + '?q=' + eUtf8str;
   document.getElementById("urls").value = url;
   document.getElementById("urls").select();
+  document.getElementById("AnsW").value = "";
+}
+function createImg_Click(){
+  var canvasB = document.getElementById("question");
+  var ctxB = canvasB.getContext('2d');
+
+  var canvas = document.createElement("canvas");
+  canvas.width = canvasB.width/2;
+  canvas.height = canvasB.height/2;
+
+  var ctx = canvas.getContext('2d');
+
+  ctx.drawImage(canvasB, 0, 0, canvasB.width, canvasB.height, 0, 0, canvas.width , canvas.height);
+
+
+  var a = document.createElement("a");
+  a.href = canvas.toDataURL("image/jpg", 0.75);
+  
+  var val = document.getElementById("qword").value;
+  var uri = encodeURI(val.codePointAt(0)+"_"+val.codePointAt(1));
+
+  a.download = "qk_" + uri + ".jpg";
+  a.click();
 }
 </script>
 </head>
 <body>
 
-<canvas id="question" class="qbox" width="300" height="300"></canvas>
+<span class="tooltip" data-tooltip="クリックすると問題をDLします。(縮小版)">
+<canvas id="question" class="qbox" width="300" height="300" onclick="createImg_Click()" alt="クリックすると画像を生成します。"></canvas>
+</span>
 <div class="qbox iLine">
 問題：2字熟語の共通部分から、この二字熟語を答えて下さい。<br/>
   <input type="text" id="AnsW" style="width:3em;" />
   <button id="chkAns" onclick="chkAns_Click()">回答</button><br/>
 システム参考：QuizKnock Youtube 「
 <a href="https://www.youtube.com/watch?v=IXyQwMtE8rA" target="_blank">【物理的に】熟語を重ねてみた【なぜか読める】</a>
-」より
+」より<br/><br/>
+正解すると、別の問題を作成でき、<br/>
+問題用のURLを作成できます。<br/>
+#物理的な二重部分だけが見える二字熟語
 </div>
 <div id="EditMode">
   <canvas id="w01" class="qbox" width="300" height="300"></canvas>
