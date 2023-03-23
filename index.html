@@ -233,8 +233,8 @@ function createImg_Click(){
   var ctxB = canvasB.getContext('2d');
 
   var canvas = document.createElement("canvas");
-  canvas.width = canvasB.width/2;
-  canvas.height = canvasB.height/2;
+  canvas.width = canvasB.width;
+  canvas.height = canvasB.height;
 
   var ctx = canvas.getContext('2d');
 
@@ -254,7 +254,7 @@ function createImg_Click(){
 </head>
 <body>
 
-<span class="tooltip" data-tooltip="クリックすると問題をDLします。(縮小版)">
+<span class="tooltip" data-tooltip="クリックすると問題をDLします。">
 <canvas id="question" class="qbox" width="300" height="300" onclick="createImg_Click()" alt="クリックすると画像を生成します。"></canvas>
 </span>
 <div class="qbox iLine">
