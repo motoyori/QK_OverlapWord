@@ -61,7 +61,6 @@ https://www.youtube.com/watch?v=IXyQwMtE8rA
 [ToDo]
 ・フォントの変更（URLに反映）
 ・複数回誤答の場合に、ギブアップ機能
-・問題生成後にそのまま回答部分の非表示化
 ・問題サイズの変更
 */
 
@@ -228,8 +227,14 @@ function createURL_Click(){
   document.getElementById("urls").select();
   document.getElementById("AnsW").value = "";
 }
-function createImg_Click(){
-  var canvasB = document.getElementById("question");
+function createImgQ_Click(){
+  createImg("question", "");
+}
+function createImgA_Click(){
+  createImg("Answer", "_ANS");
+}
+function createImg(key, addW){
+  var canvasB = document.getElementById(key);
   var ctxB = canvasB.getContext('2d');
 
   var canvas = document.createElement("canvas");
@@ -238,8 +243,10 @@ function createImg_Click(){
 
   var ctx = canvas.getContext('2d');
 
-  ctx.drawImage(canvasB, 0, 0, canvasB.width, canvasB.height, 0, 0, canvas.width , canvas.height);
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0,0,canvasB.width, canvasB.height);
 
+  ctx.drawImage(canvasB, 0, 0, canvasB.width, canvasB.height, 0, 0, canvas.width , canvas.height);
 
   var a = document.createElement("a");
   a.href = canvas.toDataURL("image/jpg", 0.75);
@@ -255,7 +262,7 @@ function createImg_Click(){
 <body>
 
 <span class="tooltip" data-tooltip="クリックすると問題をDLします。">
-<canvas id="question" class="qbox" width="300" height="300" onclick="createImg_Click()" alt="クリックすると画像を生成します。"></canvas>
+<canvas id="question" class="qbox" width="300" height="300" onclick="createImgQ_Click()"></canvas>
 </span>
 <div class="qbox iLine">
 問題：2字熟語の共通部分から、この二字熟語を答えて下さい。<br/>
@@ -271,7 +278,9 @@ function createImg_Click(){
 <div id="EditMode">
   <canvas id="w01" class="qbox" width="300" height="300"></canvas>
   <canvas id="w02" class="qbox" width="300" height="300"></canvas>
-  <canvas id="Answer" class="qbox" width="300" height="300"></canvas>
+  <span class="tooltip" data-tooltip="クリックすると回答をDLします。">
+    <canvas id="Answer" class="qbox" width="300" height="300" onclick="createImgA_Click()"></canvas>
+  </span>
   <div class="qbox iLine">
 【エディットモード・回答】<br/><br/>
 ・重ねる熟語(2文字)<br/>
