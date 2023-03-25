@@ -264,7 +264,7 @@ function createImg(key, addW){
   var val = document.getElementById("qword").value;
   var uri = encodeURI(val.codePointAt(0)+"_"+val.codePointAt(1));
 
-  a.download = "qk_" + uri + ".jpg";
+  a.download = "qk_" + uri + addW + ".jpg";
   a.click();
 }
 function GivUp_Click(){
