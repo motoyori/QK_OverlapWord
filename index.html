@@ -9,7 +9,9 @@
 .iLine{ display: inline-block; vertical-align:top; }
 input[type="text"]{ font-size: 150%; }
 button{ font-size: 150%; }
+button#givUp{ font-size: 100%; }
 #EditMode { display: none; }
+#givUp { display: none; }
 
 /* ツールチップ */
 .tooltip { position: relative; cursor: pointer; }
@@ -60,10 +62,12 @@ https://www.youtube.com/watch?v=IXyQwMtE8rA
 
 [ToDo]
 ・フォントの変更（URLに反映）
-・複数回誤答の場合に、ギブアップ機能
+・複数回誤答の場合に、ギブアップ機能のチェックを強化（同じ文字はカウントしないなど）
 ・問題サイズの変更
 */
 
+var errAns = 0;
+var errAnsMax = 5;
 
 var csize = 300;
 var fontSize = 100;
@@ -202,6 +206,8 @@ function createQ2_Click(){
   createQ_Click();
   document.getElementById("AnsW").value = "";
   document.getElementById("EditMode").style.display ="none";
+  document.getElementById("givUp").style.display ="none";
+  errAns = 0;
 }
 
 function chkAns_Click(){
@@ -213,6 +219,10 @@ function chkAns_Click(){
   }else{
     alert('不正解！');
     document.getElementById("EditMode").style.display ="none";
+    errAns++;
+    if (errAns >= errAnsMax){
+      document.getElementById("givUp").style.display ="inline";
+    }
   }
 }
 
@@ -257,6 +267,9 @@ function createImg(key, addW){
   a.download = "qk_" + uri + ".jpg";
   a.click();
 }
+function GivUp_Click(){
+    document.getElementById("EditMode").style.display ="block";
+}
 </script>
 </head>
 <body>
@@ -267,7 +280,7 @@ function createImg(key, addW){
 <div class="qbox iLine">
 問題：2字熟語の共通部分から、この二字熟語を答えて下さい。<br/>
   <input type="text" id="AnsW" style="width:3em;" />
-  <button id="chkAns" onclick="chkAns_Click()">回答</button><br/>
+  <button id="chkAns" onclick="chkAns_Click()">回答</button>　<button id="givUp" onclick="GivUp_Click()">ｷﾞﾌﾞｱｯﾌﾟ</button><br/>
 システム参考：QuizKnock Youtube 「
 <a href="https://www.youtube.com/watch?v=IXyQwMtE8rA" target="_blank">【物理的に】熟語を重ねてみた【なぜか読める】</a>
 」より<br/><br/>
